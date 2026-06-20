@@ -6,8 +6,8 @@ import {
   signInSuccess,
   signInFailure,
 } from '../redux/user/userSlice';
-import OAuth from '../components/OAuth';
-import { FaUser, FaLock } from 'react-icons/fa';
+import OAuth from '../components/auth/OAuth';
+import { FaEnvelope, FaLock, FaBriefcase, FaRocket, FaShieldAlt } from 'react-icons/fa';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -47,47 +47,127 @@ export default function SignIn() {
   };
 
   return (
-    <div className='p-8 max-w-lg mx-auto mt-[120px] border rounded-xl shadow-xl my-10 bg-white text-gray-800'>
-      <h1 className='text-4xl text-center font-bold mb-6 text-gray-900'>Sign In</h1>
-      <p className='text-center text-lg mb-6 text-gray-600'>Welcome back! Please sign in to continue.</p>
-      <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
-        <div className="flex items-center bg-gray-100 text-gray-700 border border-gray-300 p-4 rounded-lg shadow-sm focus-within:border-teal-500">
-          <FaUser className="text-teal-500 mr-3" />
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="w-full outline-none bg-transparent text-gray-700 placeholder-gray-400"
-            id="email"
-            onChange={handleChange}
-          />
-        </div>
+    <div className="min-h-screen flex">
+      {/* Left Panel — Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 animate-gradient-shift">
+        {/* Decorative Shapes */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-cyan-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }} />
 
-        <div className="flex items-center bg-gray-100 text-gray-700 border border-gray-300 p-4 rounded-lg shadow-sm focus-within:border-teal-500">
-          <FaLock className="text-teal-500 mr-3" />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full outline-none bg-transparent text-gray-700 placeholder-gray-400"
-            id="password"
-            onChange={handleChange}
-          />
-        </div>
+        <div className="relative z-10 flex flex-col justify-center items-start px-16 text-white">
+          <div className="mb-8">
+            <h1 className="text-5xl font-extrabold tracking-tight leading-tight">
+              Welcome back to<br />
+              <span className="text-yellow-300">JobHub</span>
+            </h1>
+            <p className="mt-4 text-lg text-emerald-100 max-w-md leading-relaxed">
+              Your gateway to premium career opportunities. Sign in to access your dashboard.
+            </p>
+          </div>
 
-        <button
-          disabled={loading}
-          className='bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg uppercase font-semibold transition-all duration-300 ease-in-out disabled:opacity-60 shadow-md'
-        >
-          {loading ? 'Signing In...' : 'Sign In'}
-        </button>
-        <OAuth />
-      </form>
-      <div className='flex flex-col items-center gap-2 mt-6'>
-        <p className='text-gray-600'>Don't have an account?</p>
-        <Link to={'/sign-up'}>
-          <span className='text-teal-600 hover:text-teal-700 hover:underline font-medium'>Create an account</span>
-        </Link>
+          <div className="space-y-5 stagger-children">
+            {[
+              { icon: <FaBriefcase />, text: "Access 1M+ premium job listings" },
+              { icon: <FaRocket />, text: "AI-powered interview preparation" },
+              { icon: <FaShieldAlt />, text: "Secure & trusted by thousands" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-4 glass rounded-xl px-5 py-3">
+                <div className="text-yellow-300 text-lg">{item.icon}</div>
+                <span className="text-sm font-medium text-emerald-50">{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      {error && <p className='text-red-500 mt-5 text-center font-semibold'>{error}</p>}
+
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-slate-50 dark:bg-[#0b1120]">
+        <div className="w-full max-w-md animate-fade-in-up">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <h2 className="text-3xl font-extrabold">
+              <span className="text-slate-800 dark:text-white">Job</span>
+              <span className="gradient-text">Hub</span>
+            </h2>
+          </div>
+
+          <div className="card-premium p-8 sm:p-10">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Sign In</h1>
+              <p className="mt-2 text-slate-500 dark:text-slate-400">Welcome back! Please enter your details.</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
+                <div className="relative">
+                  <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className="input-premium pl-11"
+                    id="email"
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+                <div className="relative">
+                  <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="input-premium pl-11"
+                    id="password"
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <button
+                disabled={loading}
+                className="btn-gradient w-full py-3.5 mt-2 rounded-xl text-sm uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Signing In...
+                  </span>
+                ) : 'Sign In'}
+              </button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white dark:bg-slate-800/60 px-3 text-slate-400">or continue with</span>
+                </div>
+              </div>
+
+              <OAuth />
+            </form>
+
+            <div className="text-center mt-6">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Don't have an account?{' '}
+                <Link to="/sign-up" className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                  Create one
+                </Link>
+              </p>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-center">
+                <p className="text-sm text-rose-600 dark:text-rose-400 font-medium">{error}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

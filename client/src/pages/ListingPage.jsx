@@ -1,37 +1,18 @@
 import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
-import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore from 'swiper';
-import { Navigation } from 'swiper/modules';
-import 'swiper/css/bundle';
 import { Link } from "react-router-dom";
-
 import { ThemeContext } from '../context/ThemeContext';
 import {
-
-  FaMapMarkerAlt,
-  FaShare,
-  FaStar,
-  FaPhoneAlt,
-  FaStarHalfAlt,
-  FaWhatsapp,
-  FaCheckCircle,
-  FaShieldAlt,
-  FaBuilding,
-  FaClock,
-  FaUserTie,
-  FaBriefcase,
+  FaMapMarkerAlt, FaStar, FaStarHalfAlt, FaPhoneAlt,
+  FaCheckCircle, FaShieldAlt, FaClock, FaUserTie, FaBriefcase, FaClipboardList,
 } from 'react-icons/fa';
-import {  FaClipboardList } from 'react-icons/fa';
 
 export default function Listing() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const { theme} = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -41,152 +22,146 @@ export default function Listing() {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingId}`);
         const data = await res.json();
-        if (data.success === false) {
-          setError(true);
-          setLoading(false);
-          return;
-        }
+        if (data.success === false) { setError(true); setLoading(false); return; }
         setListing(data);
         setLoading(false);
         setError(false);
-      } catch (error) {
-        setError(true);
-        setLoading(false);
-      }
+      } catch (error) { setError(true); setLoading(false); }
     };
     fetchListing();
   }, [params.listingId]);
 
   return (
-    <main
-    className={`${theme === "dark" ? "dark" : ""} bg-gray-50 dark:bg-gray-900 min-h-screen flex justify-center items-center p-6 sm:p-10 transition-colors duration-300`}
-  >
-    {loading && (
-      <p className="text-center my-6 text-2xl text-gray-700 dark:text-gray-300 font-medium animate-pulse">
-        Loading...
-      </p>
-    )}
-    {error && (
-      <p className="text-center my-6 text-2xl text-red-600 dark:text-red-400 font-medium">
-        Something went wrong!
-      </p>
-    )}
-    {listing && !loading && !error && (
-
-      <div className="w-full max-w-5xl bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-xl shadow-lg flex flex-col md:flex-row gap-8 transition-transform duration-300 hover:scale-[1.02] border border-gray-200 dark:border-gray-700">
-        
-        {/* Left Section - Image and Recruiter Info */}
-        <div className="md:w-1/3 flex flex-col items-center gap-6">
-
-          {listing.imageUrls.length > 0 && (
-            <div className="w-full border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden shadow-md">
-              <img src={listing.imageUrls[0]} alt="Company Logo" className="h-44 w-full object-cover" />
+    <main className={`${theme === "dark" ? "dark" : ""} min-h-screen pt-24 pb-12 px-4 bg-slate-50 dark:bg-[#0b1120] transition-colors duration-300`}>
+      {loading && (
+        <div className="flex justify-center py-20">
+          <div className="w-12 h-12 border-3 border-slate-200 dark:border-slate-700 border-t-emerald-500 rounded-full animate-spin" />
+        </div>
+      )}
+      {error && (
+        <div className="text-center py-20 animate-fade-in-up">
+          <div className="text-5xl mb-4">😔</div>
+          <p className="text-xl font-medium text-rose-500">Something went wrong!</p>
+        </div>
+      )}
+      {listing && !loading && !error && (
+        <div className="max-w-5xl mx-auto animate-fade-in-up">
+          <div className="card-premium overflow-hidden">
+            {/* Header with Image */}
+            <div className="relative h-56 sm:h-72 overflow-hidden">
+              {listing.imageUrls.length > 0 && (
+                <img src={listing.imageUrls[0]} alt="Company" className="w-full h-full object-cover" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              <div className="absolute bottom-6 left-6 sm:left-8 right-6 text-white">
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1">{listing.jobTitle}</h1>
+                <p className="text-lg text-white/80 font-medium">{listing.companyName}</p>
+                <div className="flex items-center gap-2 mt-2 text-white/70 text-sm">
+                  <FaMapMarkerAlt className="text-emerald-400" />
+                  {listing.address}, {listing.city}
+                </div>
+              </div>
             </div>
-          )}
-          
 
-          <div className="w-full bg-gray-100 dark:bg-gray-700 p-6 rounded-lg border border-gray-300 dark:border-gray-600">
-            <p className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center">
-              Recruiter Information
-            </p>
-            <ul className="mt-4 text-gray-700 dark:text-gray-300 list-disc pl-6 space-y-2">
+            <div className="p-6 sm:p-8 lg:p-10">
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* Main Content */}
+                <div className="flex-1 space-y-8">
+                  {/* Key Info */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    {[
+                      { icon: <FaBriefcase className="text-emerald-500" />, label: "Type", value: listing.jobType },
+                      { icon: <FaUserTie className="text-teal-500" />, label: "Experience", value: listing.experienceRequired },
+                      { icon: <FaClock className="text-amber-500" />, label: "Skills", value: listing.skillsRequired },
+                      { icon: <FaMapMarkerAlt className="text-emerald-500" />, label: "Location", value: listing.city },
+                    ].map((item, i) => (
+                      <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+                        <div className="text-lg mb-1">{item.icon}</div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">{item.label}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 truncate">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
 
-              <li className="flex items-center">
-                <FaCheckCircle className="text-blue-600 text-lg mr-2" />
-                {listing.recruiterName}
-              </li>
-              <li className="flex items-center">
-                <FaShieldAlt className="text-purple-700 text-lg mr-2" />
-                {listing.companyName}
-              </li>
-            </ul>
+                  {/* Salary */}
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30">
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Salary:</span>
+                    <span className="text-2xl font-extrabold gradient-text">₹{listing.salary}</span>
+                    <span className="text-sm text-slate-500">per annum</span>
+                  </div>
 
-            <div className="mt-6 flex flex-col gap-4">
-               <Link to="/Recuirtment">
-              <button className="w-full bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium flex items-center justify-center hover:bg-blue-700 dark:hover:bg-blue-800 transition duration-300 animate-pulse">
-                <FaPhoneAlt className="mr-2" />ApplyNow
-              </button>
-              </Link>
-             
+                  {/* Description */}
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Job Description</h3>
+                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{listing.description}</p>
+                  </div>
 
+                  {/* Rating */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-yellow-400">
+                      <FaStar /><FaStar /><FaStar /><FaStar /><FaStarHalfAlt />
+                    </div>
+                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">(4.5/5)</span>
+                  </div>
+
+                  {/* Recruitment Process */}
+                  <div className="p-6 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-5">
+                      <FaClipboardList className="text-emerald-500" /> Recruitment Process
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { step: "1", title: "Online Application", desc: "Submit your resume and cover letter through our careers portal." },
+                        { step: "2", title: "Initial Screening", desc: "Shortlisted candidates will be contacted for a brief virtual interview." },
+                        { step: "3", title: "Technical Assessment", desc: "Complete an online coding challenge or problem-solving test." },
+                        { step: "4", title: "Technical Interview", desc: "A detailed one-on-one or panel interview focusing on past projects." },
+                        { step: "5", title: "HR Interview", desc: "Discussion on behavioral aspects, soft skills, and cultural fit." },
+                        { step: "6", title: "Final Offer", desc: "Selected candidates receive an official offer letter." },
+                        { step: "7", title: "Onboarding", desc: "Once accepted, candidates go through an onboarding process." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4">
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{item.step}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sidebar */}
+                <div className="lg:w-72 flex-shrink-0 space-y-6">
+                  {/* Recruiter Info */}
+                  <div className="card-premium p-6">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Recruiter Info</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <FaCheckCircle className="text-emerald-500 flex-shrink-0" />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{listing.recruiterName}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <FaShieldAlt className="text-teal-500 flex-shrink-0" />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{listing.companyName}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Apply Button */}
+                  <Link to="/Recuirtment">
+                    <button className="btn-gradient w-full py-4 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                      <FaPhoneAlt /> Apply Now
+                    </button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* Right Section - Job Details */}
-
-        <div className="md:w-2/3 p-8 animate-slideInRight">
-          <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 animate-fadeInUp">{listing.jobTitle}</p>
-          <p className="text-xl text-gray-600 dark:text-gray-300">{listing.companyName}</p>
-          <p className="text-xl text-gray-600 dark:text-gray-300">Salary: ₹{listing.salary} per annum</p>
-          <div className="flex mt-2 text-gray-600 dark:text-gray-300">
-
-            <FaMapMarkerAlt className="text-green-700 text-lg mr-2" />
-            {listing.address}, {listing.city}
-          </div>
-          <p className="mt-4 text-gray-800 dark:text-gray-300 leading-relaxed">
-            <span className="font-semibold text-gray-900 dark:text-gray-100">Job Description:</span> {listing.description}
-          </p>
-          
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-gray-700 dark:text-gray-300">
-            <li className="flex items-center">
-              <FaUserTie className="text-blue-700 text-lg mr-2" />
-
-              {listing.experienceRequired} of  experience
-
-            </li>
-            <li className="flex items-center">
-              <FaBriefcase className="text-green-700 text-lg mr-2" />
-              {listing.jobType}
-            </li>
-            <li className="flex items-center">
-              <FaClock className="text-red-700 text-lg mr-2" />
-              {listing.skillsRequired}
-            </li>
-           
-          </ul>
-          
-          <div className="mt-4 flex items-center">
-            <div className="flex items-center text-yellow-500 text-lg font-medium">
-              <FaStar /><FaStar /><FaStar /><FaStar /><FaStarHalfAlt />
-              <span className="ml-2 text-gray-700 dark:text-gray-300">(4.5/5)</span>
-            </div>
-          </div>
-
-  
-          {/* Recruitment Process */}
-          <div className="mt-6 p-6 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-lg border border-gray-300 dark:border-gray-600">
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-              <FaClipboardList className="mr-2 text-blue-600" /> Recruitment Process
-            </p>
-            <ol className="mt-4 text-gray-700 dark:text-gray-300 list-decimal pl-6 space-y-3">
-              <li>
-                <strong>Online Application:</strong> Submit your resume and cover letter through our careers portal. Ensure your resume highlights relevant skills and experience.
-              </li>
-              <li>
-                <strong>Initial Screening:</strong> Shortlisted candidates will be contacted for a brief telephonic or virtual interview.
-              </li>
-              <li>
-                <strong>Technical Assessment:</strong> Candidates may be required to complete an online coding challenge or a problem-solving test.
-              </li>
-              <li>
-                <strong>Technical Interview:</strong> A detailed one-on-one or panel interview focusing on problem-solving and past projects.
-              </li>
-              <li>
-                <strong>HR Interview:</strong> A discussion on behavioral aspects, soft skills, and cultural fit.
-              </li>
-              <li>
-                <strong>Final Offer:</strong> Selected candidates will receive an official offer letter.
-              </li>
-              <li>
-                <strong>Onboarding & Training:</strong> Once the offer is accepted, candidates will go through an onboarding process.
-              </li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    )}
-  </main>
-
+      )}
+    </main>
   );
 }

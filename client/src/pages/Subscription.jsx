@@ -1,27 +1,14 @@
 import React, { useState } from 'react';
-
-import { CiMail } from "react-icons/ci";
-import { FaUnlockKeyhole } from "react-icons/fa6";
-import { FaInfo } from "react-icons/fa";
-import { CiCalendar } from "react-icons/ci";
-import { CiCreditCard1 } from "react-icons/ci";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaCrown, FaRocket, FaBolt, FaLock, FaCreditCard, FaCalendarAlt, FaInfoCircle } from 'react-icons/fa';
 
 const Subscription = () => {
   const [email, setEmail] = useState('');
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-  });
-  const [selectedPlan, setSelectedPlan] = useState('Basic');
+  const [cardDetails, setCardDetails] = useState({ cardNumber: '', expiryDate: '', cvv: '' });
+  const [selectedPlan, setSelectedPlan] = useState('Advanced');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle subscription and payment logic here
-    console.log('Subscribed with:', email);
-    console.log('Card Details:', cardDetails);
-    console.log('Selected Plan:', selectedPlan);
+    console.log('Subscribed:', email, cardDetails, selectedPlan);
     alert(`Thank you for subscribing to the ${selectedPlan} plan with ${email}`);
     setEmail('');
     setCardDetails({ cardNumber: '', expiryDate: '', cvv: '' });
@@ -32,116 +19,116 @@ const Subscription = () => {
     setCardDetails({ ...cardDetails, [name]: value });
   };
 
-  const handlePlanChange = (plan) => {
-    setSelectedPlan(plan);
-  };
+  const plans = [
+    {
+      name: "Basic", price: "$9.99", icon: <FaBolt className="text-blue-500" />,
+      desc: "For beginners", features: ["Access to job listings", "Basic resume analysis", "Email support"],
+    },
+    {
+      name: "Advanced", price: "$19.99", icon: <FaRocket className="text-teal-500" />,
+      desc: "Most popular", features: ["All Basic features", "AI interview prep", "Priority applications", "Advanced analytics"],
+      popular: true,
+    },
+    {
+      name: "Ninja", price: "$29.99", icon: <FaCrown className="text-amber-500" />,
+      desc: "For experts", features: ["All Advanced features", "Direct recruiter access", "Resume boosting", "Dedicated support"],
+    },
+  ];
 
   return (
-    
-    <div className="mt-16 flex items-center justify-center px-4 md:px-0">
-      <div className="bg-white rounded-3xl shadow-xl max-w-5xl w-full overflow-hidden transform hover:scale-105 transition-transform duration-300">
-        <div className="flex flex-col md:flex-row">
-          {/* Left Column - Plan Selection */}
-          <div className="w-full md:w-1/2 p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
-            <h2 className="text-3xl font-extrabold text-indigo-800 mb-4">JobHub Premium</h2>
-            <p className="text-gray-600 mb-6">Choose the perfect plan and unlock job opportunities.</p>
+    <div className="min-h-screen pt-24 pb-12 px-4 bg-slate-50 dark:bg-[#0b1120]">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12 animate-fade-in-up">
+          <div className="inline-block mb-3 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/30 rounded-full">
+            <span className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">✨ Premium Plans</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">JobHub Premium</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">Choose the perfect plan and unlock career opportunities.</p>
+        </div>
 
-            {/* Pricing Plans */}
-            <div className="space-y-4">
-              {["Basic", "Advanced", "Ninja"].map((plan, index) => (
-                <div
-                  key={plan}
-                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl ${
-                    selectedPlan === plan ? "border-indigo-500 bg-indigo-100" : "border-gray-200 bg-white"
-                  }`}
-                  onClick={() => handlePlanChange(plan)}
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-gray-800">{plan}</h3>
-                    <p className="text-xl font-bold text-indigo-600">${index *10 + 9.9}/mo</p>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 animate-fade-in-up">
+          {/* Plans */}
+          <div className="lg:col-span-3 space-y-4">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`relative card-premium p-6 cursor-pointer transition-all duration-300 ${
+                  selectedPlan === plan.name
+                    ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/10'
+                    : 'hover:border-slate-300 dark:hover:border-slate-600'
+                }`}
+                onClick={() => setSelectedPlan(plan.name)}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-3 left-6 px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg">
+                    MOST POPULAR
+                  </span>
+                )}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl">{plan.icon}</div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{plan.name}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{plan.desc}</p>
+                    </div>
                   </div>
-                  <p className="text-gray-600 mb-3">{plan === "Basic" ? "For beginners" : plan === "Advanced" ? "For professionals" : "For experts"}</p>
-                  <ul className="text-gray-600 space-y-2">
-                    <li className="flex items-center">
-                      <FaCheckCircle size={16} className="text-blue-500 mr-2" />
-                      Access to exclusive job listings
-                    </li>
-                    <li className="flex items-center">
-                      <FaCheckCircle size={16} className="text-blue-500 mr-2" />
-                      Priority application processing
-                    </li>
-                  </ul>
+                  <div className="text-right">
+                    <p className="text-2xl font-extrabold gradient-text">{plan.price}</p>
+                    <p className="text-xs text-slate-400">/month</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {plan.features.map((f, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 px-3 py-1 rounded-full">
+                      <FaCheckCircle className="text-emerald-500 text-[10px]" /> {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Right Column - Payment Details */}
-          <div className="w-full md:w-1/2 p-8 bg-white">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Complete Your Subscription</h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
-              <div>
-                <label className="block text-gray-700 font-bold mb-2">Email Address</label>
-                <input
-                  className="shadow border rounded-lg w-full py-3 px-4 text-gray-700 focus:ring-2 focus:ring-indigo-500"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Payment Details */}
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Payment Details</h3>
-                <div className="space-y-4">
-                  <input
-                    className="shadow border rounded-lg w-full py-3 px-4 text-gray-700 focus:ring-2 focus:ring-indigo-500"
-                    type="text"
-                    placeholder="Card Number"
-                    name="cardNumber"
-                    value={cardDetails.cardNumber}
-                    onChange={handleCardChange}
-                    required
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      className="shadow border rounded-lg w-full py-3 px-4 text-gray-700 focus:ring-2 focus:ring-indigo-500"
-                      type="text"
-                      placeholder="MM/YY"
-                      name="expiryDate"
-                      value={cardDetails.expiryDate}
-                      onChange={handleCardChange}
-                      required
-                    />
-                    <input
-                      className="shadow border rounded-lg w-full py-3 px-4 text-gray-700 focus:ring-2 focus:ring-indigo-500"
-                      type="text"
-                      placeholder="CVV"
-                      name="cvv"
-                      value={cardDetails.cvv}
-                      onChange={handleCardChange}
-                      required
-                    />
+          {/* Payment */}
+          <div className="lg:col-span-2">
+            <div className="card-premium p-6 sm:p-8 sticky top-24">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Complete Subscription</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
+                  <input className="input-premium" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Card Number</label>
+                  <div className="relative">
+                    <FaCreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                    <input className="input-premium pl-11" type="text" placeholder="4242 4242 4242 4242" name="cardNumber" value={cardDetails.cardNumber} onChange={handleCardChange} required />
                   </div>
                 </div>
-              </div>
-              
-              {/* Submit Button */}
-              <button
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 w-full"
-                type="submit"
-              >
-                Subscribe to {selectedPlan} • ${selectedPlan === "Basic" ? "9.99" : selectedPlan === "Advanced" ? "19.99" : "29.99"}/month
-              </button>
-            </form>
-            
-            <p className="text-gray-500 text-sm mt-4 text-center">
-              <FaInfo size={16} className="inline-block mr-1" /> Your subscription will auto-renew. Cancel anytime.
-            </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Expiry</label>
+                    <div className="relative">
+                      <FaCalendarAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                      <input className="input-premium pl-11" type="text" placeholder="MM/YY" name="expiryDate" value={cardDetails.expiryDate} onChange={handleCardChange} required />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">CVV</label>
+                    <div className="relative">
+                      <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                      <input className="input-premium pl-11" type="text" placeholder="123" name="cvv" value={cardDetails.cvv} onChange={handleCardChange} required />
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" className="btn-gradient w-full py-3.5 rounded-xl text-sm uppercase tracking-wider mt-2">
+                  Subscribe to {selectedPlan} • {plans.find(p => p.name === selectedPlan)?.price}/mo
+                </button>
+              </form>
+              <p className="text-xs text-slate-400 text-center mt-4 flex items-center justify-center gap-1">
+                <FaInfoCircle /> Auto-renews. Cancel anytime.
+              </p>
+            </div>
           </div>
         </div>
       </div>
