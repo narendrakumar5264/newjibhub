@@ -6,6 +6,7 @@ import authRouter from './routes/auth.route.js';
 import cookieParser from 'cookie-parser';
 import listingRouter from './routes/listing.route.js';
 import path from 'path';
+import fs from 'fs';
 import connectDB from './config/db.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
@@ -29,11 +30,20 @@ app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/listing', listingRouter);
 
-app.use(express.static(path.join(__dirname, '/client/dist')));
+const distPath = path.join(__dirname, '/client/dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+}
 
                   // Middleware for error handling
 app.use(errorHandler);
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-  });
+if (fs.existsSync(distPath)) {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.json({ message: "JobHub API is running" });
+    });
+}
