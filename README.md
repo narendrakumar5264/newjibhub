@@ -2,6 +2,13 @@
 
 JobHub is a state-of-the-art MERN-stack application that transforms the traditional job search and recruitment pipeline. By integrating cutting-edge language models (Groq AI & Gemini) alongside a fully-featured job recruitment system, JobHub provides candidates with interactive AI interview coaching and resume optimization tools while helping recruiters seamlessly manage top talent.
 
+### 🔗 Live Deployments
+* **Live Website (Frontend):** [https://jobhub-kappa-black.vercel.app/](https://jobhub-kappa-black.vercel.app/)
+* **API Endpoint (Backend):** [https://jobhub-t3hm.onrender.com/](https://jobhub-t3hm.onrender.com/)
+
+[![Frontend - Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel)](https://jobhub-kappa-black.vercel.app/)
+[![Backend - Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://jobhub-t3hm.onrender.com/)
+
 ---
 
 ## 🌟 Key Features
@@ -61,6 +68,7 @@ JobHub-hackthon/
 │   │   ├── pages/          # Page layouts (AIInterview, Resume, Search, Profile)
 │   │   ├── redux/          # State management (userSlice, store)
 │   │   └── index.css       # Core Tailwind directives & styling tokens
+│   ├── vercel.json         # Vercel deployment route proxying
 │   └── package.json        # Frontend dependencies & scripts
 ├── package.json            # Root configuration & dev scripts
 └── README.md               # Documentation
@@ -117,7 +125,7 @@ You can run both the server and client concurrently or separately:
   ```bash
   npm run dev
   ```
-  *The backend server runs on `http://localhost:3000` (or the port defined in index.js).*
+  *The backend server runs on `http://localhost:3000`.*
 
 * **Start the Vite frontend dev server:**
   ```bash
@@ -127,11 +135,12 @@ You can run both the server and client concurrently or separately:
 
 ---
 
-## 📈 Verification & Testing
-* Open `http://localhost:5173` to verify client-side routing.
-* Test Google Sign-in flow to verify Firebase credentials.
-* Upload a sample PDF resume in the **Resume ATS Analyzer** to confirm PDF parsing and Groq API response.
-* Open the **AI Interview Coach**, select a topic, and record/type answers to verify real-time speech processing and evaluation feedback.
+## 🌐 Deploying Serverless (Vercel + Render)
+
+This application is split-deployed for optimal performance:
+1. **Frontend on Vercel**: Deployed directly from the `client/` folder. Routing is handled by Vercel Edge.
+2. **Backend on Render**: Deployed from the root folder as a Web Service.
+3. **API Rewrite Rules**: The `client/vercel.json` ensures that all `/api/*` requests sent to Vercel are proxied to the Render backend, preventing CORS and cookie authorization errors.
 
 ---
 
