@@ -49,8 +49,8 @@ export default function UpdateListing() {
   };
 
   const handleUploadClick = async () => {
-    setIsUploading(true);
     if (files.length === 0) { setUploadStatus("No files selected."); return; }
+    setIsUploading(true);
     try {
       const promises = files.map((file) => storeImage(file));
       const newImageUrls = await Promise.all(promises);

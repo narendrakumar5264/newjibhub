@@ -20,9 +20,11 @@ const Recruitment = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) { setFormData({ ...formData, resume: files[0] }); setResumeName(files[0].name); }
-    else { setFormData({ ...formData, [name]: value }); }
-    setEmail(formData.email);
-    setname(formData.name);
+    else {
+      setFormData({ ...formData, [name]: value });
+      if (name === 'email') setEmail(value);
+      if (name === 'name') setname(value);
+    }
   };
 
   const [selectedDate, setSelectedDate] = useState(new Date());

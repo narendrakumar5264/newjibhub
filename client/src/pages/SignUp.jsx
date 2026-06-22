@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import OAuth from '../components/auth/OAuth';
 import { FaUser, FaEnvelope, FaLock, FaStar, FaChartLine, FaUsers } from 'react-icons/fa';
 
 export default function SignUp() {
@@ -191,17 +190,6 @@ export default function SignUp() {
                       </span>
                     ) : 'Create Account'}
                   </button>
-
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white dark:bg-slate-800/60 px-3 text-slate-400">or continue with</span>
-                    </div>
-                  </div>
-
-                  <OAuth />
                 </form>
 
                 <div className="text-center mt-6">

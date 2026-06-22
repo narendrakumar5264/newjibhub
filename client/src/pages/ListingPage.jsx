@@ -87,7 +87,7 @@ export default function Listing() {
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30">
                     <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Salary:</span>
                     <span className="text-2xl font-extrabold gradient-text">₹{listing.salary}</span>
-                    <span className="text-sm text-slate-500">per annum</span>
+                    <span className="text-sm text-slate-500">per month</span>
                   </div>
 
                   {/* Description */}

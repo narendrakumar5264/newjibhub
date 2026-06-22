@@ -6,7 +6,6 @@ import {
   signInSuccess,
   signInFailure,
 } from '../redux/user/userSlice';
-import OAuth from '../components/auth/OAuth';
 import { FaEnvelope, FaLock, FaBriefcase, FaRocket, FaShieldAlt } from 'react-icons/fa';
 
 export default function SignIn() {
@@ -139,16 +138,6 @@ export default function SignIn() {
                 ) : 'Sign In'}
               </button>
 
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-slate-800/60 px-3 text-slate-400">or continue with</span>
-                </div>
-              </div>
-
-              <OAuth />
             </form>
 
             <div className="text-center mt-6">

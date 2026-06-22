@@ -81,45 +81,44 @@ export default function Profile() {
       } else {
         clearInterval(interval);
       }
-    }, 500);
+    }, 300);
 
-    setTimeout(async () => {
-      const dataToSend = {
-        ...formData,
-        avatar: uploadedImage || currentUser.avatar,
-      };
-      setFormData(dataToSend);
+    const dataToSend = {
+      ...formData,
+      avatar: uploadedImage || currentUser.avatar,
+    };
+    setFormData(dataToSend);
 
-      try {
-        dispatch(updateUserStart());
-        const res = await fetch(`/api/user/update/${currentUser._id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dataToSend),
-        });
-        const data = await res.json();
-        if (data.success === false) {
-          dispatch(updateUserFailure(data.message));
-          setLoading(false);
-          clearInterval(interval);
-          return;
-        }
-
-        dispatch(updateUserSuccess(data));
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+      const data = await res.json();
+      clearInterval(interval);
+      setUpdatePercentage(100);
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
         setLoading(false);
-        setUpdateSuccess(true);
-        setSuccessMessage("User updated successfully!");
-        setTimeout(() => {
-          setUpdateSuccess(false);
-        }, 3000);
-      } catch (error) {
-        dispatch(updateUserFailure(error.message));
-        setLoading(false);
-        clearInterval(interval);
+        return;
       }
-    }, 4000);
+
+      dispatch(updateUserSuccess(data));
+      setLoading(false);
+      setUpdateSuccess(true);
+      setSuccessMessage("User updated successfully!");
+      setTimeout(() => {
+        setUpdateSuccess(false);
+      }, 3000);
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+      setLoading(false);
+      clearInterval(interval);
+    }
   };
 
   const handleDeleteUser = async () => {

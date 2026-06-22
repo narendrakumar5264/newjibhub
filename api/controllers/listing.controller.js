@@ -1,64 +1,88 @@
+import Listing from '../models/listing.model.js';
 import { errorHandler } from '../utils/error.js';
-import {
-  createListingService,
-  deleteListingService,
-  updateListingService,
-  getListingService,
-  getListingsService
-} from '../services/listing.service.js';
 
+// ── create listing ────────────────────────────────────────────────────────────
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await createListingService(req.body);
-    return res.status(201).json(listing);
+    const listing = await Listing.create(req.body);
+    res.status(201).json(listing);
   } catch (error) {
     next(error);
   }
 };
 
+// ── delete listing ────────────────────────────────────────────────────────────
 export const deleteListing = async (req, res, next) => {
   try {
-    await deleteListingService(req.params.id, req.user.id);
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return next(errorHandler(404, 'Listing not found!'));
+    if (req.user.id !== listing.userRef) return next(errorHandler(401, 'You can only delete your own listings!'));
+
+    await Listing.findByIdAndDelete(req.params.id);
     res.status(200).json('Listing has been deleted!');
   } catch (error) {
-    if (error.statusCode) {
-      next(errorHandler(error.statusCode, error.message));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
+// ── update listing ────────────────────────────────────────────────────────────
 export const updateListing = async (req, res, next) => {
   try {
-    const updatedListing = await updateListingService(req.params.id, req.user.id, req.body);
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return next(errorHandler(404, 'Listing not found!'));
+    if (req.user.id !== listing.userRef) return next(errorHandler(401, 'You can only update your own listings!'));
+
+    const updatedListing = await Listing.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json(updatedListing);
   } catch (error) {
-    if (error.statusCode) {
-      next(errorHandler(error.statusCode, error.message));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
+// ── get single listing ────────────────────────────────────────────────────────
 export const getListing = async (req, res, next) => {
   try {
-    const listing = await getListingService(req.params.id);
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return next(errorHandler(404, 'Listing not found!'));
     res.status(200).json(listing);
   } catch (error) {
-    if (error.statusCode) {
-      next(errorHandler(error.statusCode, error.message));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
+// ── get listings (with filters) ───────────────────────────────────────────────
 export const getListings = async (req, res, next) => {
   try {
-    const listings = await getListingsService(req.query);
-    return res.status(200).json(listings);
+    const limit = parseInt(req.query.limit) || 9;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const sort = req.query.sort || 'createdAt';
+    const order = req.query.order || 'desc';
+
+    const filter = {};
+
+    if (req.query.searchTerm) {
+      filter.$or = [
+        { jobTitle:       { $regex: req.query.searchTerm, $options: 'i' } },
+        { description:    { $regex: req.query.searchTerm, $options: 'i' } },
+        { companyName:    { $regex: req.query.searchTerm, $options: 'i' } },
+        { skillsRequired: { $regex: req.query.searchTerm, $options: 'i' } },
+      ];
+    }
+
+    if (req.query.city) {
+      filter.city = { $regex: req.query.city, $options: 'i' };
+    }
+
+    if (req.query.type && req.query.type !== 'all') {
+      filter.jobType = { $regex: req.query.type, $options: 'i' };
+    }
+
+    const listings = await Listing.find(filter)
+      .sort({ [sort]: order })
+      .limit(limit)
+      .skip(startIndex);
+
+    res.status(200).json(listings);
   } catch (error) {
     next(error);
   }

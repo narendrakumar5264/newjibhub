@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ListingItem from '../components/ListingItem';
 import { ThemeContext } from '../context/ThemeContext';
 import { FiFilter, FiX } from 'react-icons/fi';
@@ -8,6 +8,7 @@ import { CiSearch } from "react-icons/ci";
 export default function Search() {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebardata, setSidebardata] = useState({
     searchTerm: '',
     type: 'all',
@@ -53,7 +54,7 @@ export default function Search() {
   }, [location.search]);
 
   const handleChange = (e) => {
-    if (e.target.id === 'all' || e.target.id === 'rent' || e.target.id === 'sale') {
+    if (e.target.id === 'all' || e.target.id === 'internship' || e.target.id === 'full-time') {
       setSidebardata({ ...sidebardata, type: e.target.id });
     }
     if (e.target.id === 'searchTerm' || e.target.id === 'city') {
@@ -131,8 +132,8 @@ export default function Search() {
                 <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Job Type</h3>
                 <div className="space-y-2.5">
                   <FilterCheckbox id="all" label="All Types" checked={sidebardata.type === "all"} />
-                  <FilterCheckbox id="rent" label="Internship" checked={sidebardata.type === "rent"} />
-                  <FilterCheckbox id="sale" label="Full Time" checked={sidebardata.type === "sale"} />
+                  <FilterCheckbox id="internship" label="Internship" checked={sidebardata.type === "internship"} />
+                  <FilterCheckbox id="full-time" label="Full Time" checked={sidebardata.type === "full-time"} />
                 </div>
               </div>
 
