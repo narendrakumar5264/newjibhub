@@ -33,10 +33,9 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
-      if (data.success === false) {
+      if (data.success === false || !res.ok) {
         setLoading(false);
-        setError(data.message);
+        setError(data.message || 'Something went wrong. Please try again.');
         return;
       }
       setLoading(false);
