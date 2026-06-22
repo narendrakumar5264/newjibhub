@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://jobhub-t3hm.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
