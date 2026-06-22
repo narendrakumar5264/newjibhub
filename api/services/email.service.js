@@ -23,8 +23,8 @@ export const sendWelcomeEmail = async (email, username) => {
           </a>
           <div style="margin-top:30px;padding-top:20px;border-top:1px solid #eee;color:#777;font-size:13px;">
             <p>Best regards,</p>
-            <p><strong>TeamEagle (Anis &amp; Narendra)</strong></p>
-            <p>Contact: <a href="mailto:jangidnarendra858@gmail.com" style="color:#4CAF50;">jangidnarendra858@gmail.com</a></p>
+            <p><strong>Anish Balkhi</strong></p>
+            <p>Contact: <a href="mailto:Anishbalkhi1@gmail.com" style="color:#4CAF50;">Anishbalkhi1@gmail.com</a></p>
           </div>
         </div>
       </div>

@@ -230,9 +230,9 @@ export default function Footer() {
 
             {/* Contact info */}
             <div className="mt-6 space-y-2">
-              <a href="mailto:jangidnarendra858@gmail.com" className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+              <a href="mailto:Anishbalkhi1@gmail.com" className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
                 <FaEnvelope className="text-[10px]" />
-                jangidnarendra858@gmail.com
+                Anishbalkhi1@gmail.com
               </a>
               <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                 <FaMapMarkerAlt className="text-[10px]" />
@@ -250,7 +250,7 @@ export default function Footer() {
             </p>
             <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
               Made with <FaHeart className="text-rose-500 text-[10px] animate-bounce-gentle" /> by
-              <span className="font-semibold text-slate-500 dark:text-slate-400">TeamEagle</span>
+              <span className="font-semibold text-slate-500 dark:text-slate-400">Anish Balkhi</span>
             </p>
           </div>
         </div>

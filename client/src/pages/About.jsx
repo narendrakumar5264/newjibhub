@@ -71,13 +71,13 @@ export default function About() {
               <span className="text-slate-700 dark:text-slate-300 font-medium text-sm">+91 9875709813</span>
             </a>
             <a
-              href="mailto:jangidnarendra858@gmail.com"
+              href="mailto:Anishbalkhi1@gmail.com"
               className="flex items-center gap-4 p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600 hover-lift transition-all"
             >
               <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
                 <FaEnvelope className="text-emerald-600 dark:text-emerald-400 text-lg" />
               </div>
-              <span className="text-slate-700 dark:text-slate-300 font-medium text-sm truncate">jangidnarendra858@gmail.com</span>
+              <span className="text-slate-700 dark:text-slate-300 font-medium text-sm truncate">Anishbalkhi1@gmail.com</span>
             </a>
           </div>
         </div>
@@ -87,10 +87,10 @@ export default function About() {
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Connect with Us</h2>
           <div className="flex justify-center gap-4">
             {[
-              { icon: <FaInstagram />, href: "https://www.instagram.com/narendrajangid2022/", color: "hover:bg-pink-500 hover:border-pink-500" },
-              { icon: <FaLinkedin />, href: "https://www.linkedin.com/in/narendra-kumar-9b2223257/", color: "hover:bg-blue-600 hover:border-blue-600" },
-              { icon: <FaGithub />, href: "https://github.com/narendrakumar5264", color: "hover:bg-slate-800 hover:border-slate-800 dark:hover:bg-slate-600" },
-              { icon: <FaTwitter />, href: "https://x.com/JangifNarendra", color: "hover:bg-sky-500 hover:border-sky-500" },
+              { icon: <FaInstagram />, href: "https://www.instagram.com/", color: "hover:bg-pink-500 hover:border-pink-500" },
+              { icon: <FaLinkedin />, href: "https://www.linkedin.com/in/anish-balkhi/", color: "hover:bg-blue-600 hover:border-blue-600" },
+              { icon: <FaGithub />, href: "https://github.com/", color: "hover:bg-slate-800 hover:border-slate-800 dark:hover:bg-slate-600" },
+              { icon: <FaTwitter />, href: "https://x.com/", color: "hover:bg-sky-500 hover:border-sky-500" },
             ].map((social, i) => (
               <a
                 key={i}
