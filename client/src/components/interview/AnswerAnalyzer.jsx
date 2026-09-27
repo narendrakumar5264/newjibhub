@@ -11,9 +11,9 @@ export default function AnswerAnalyzer({
   const wordCount = answer.trim() ? answer.trim().split(/\s+/).length : 0;
 
   return (
-    <div className="card-premium bg-slate-900/80 border-slate-700/50 p-6 sm:p-8 w-full">
+    <div className="card-premium p-6 sm:p-8 w-full">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-white">Your Answer</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Your Answer</h3>
         <span className="text-xs text-slate-500">{wordCount} words</span>
       </div>
 
@@ -21,14 +21,14 @@ export default function AnswerAnalyzer({
         placeholder="Type your answer or use the microphone during the interview..."
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
-        className="w-full p-4 rounded-xl bg-slate-800 text-white border border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none min-h-[120px] resize-y leading-relaxed"
+        className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-900/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none min-h-[140px] resize-y leading-relaxed text-sm"
       />
 
       <div className="flex flex-wrap gap-3 mt-4">
         <button
           onClick={analyzeAnswer}
           disabled={analyzing || !answer.trim()}
-          className="flex-1 min-w-[140px] py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 min-w-[140px] py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-emerald-600/20"
         >
           {analyzing ? "Analyzing..." : "Analyze Answer"}
         </button>
@@ -36,9 +36,9 @@ export default function AnswerAnalyzer({
           <button
             onClick={onNextQuestion}
             disabled={analyzing}
-            className="flex-1 min-w-[140px] py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition"
+            className="flex-1 min-w-[140px] py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-semibold rounded-xl transition"
           >
-            Next Question
+            Next Question →
           </button>
         )}
       </div>

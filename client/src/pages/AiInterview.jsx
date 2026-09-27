@@ -32,7 +32,7 @@ export default function Ai_interview() {
   const [recording, setRecording] = useState(false);
   const [videoMode, setVideoMode] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState("JavaScript");
   const [difficulty, setDifficulty] = useState("Medium");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -78,13 +78,20 @@ export default function Ai_interview() {
   }, [fetchAnalytics]);
 
   const speakQuestion = useCallback((text) => {
-    if (!window.speechSynthesis) return;
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.rate = 0.95;
-    const voices = speechSynthesis.getVoices();
-    const voice = voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha")));
-    speech.voice = voice || voices.find((v) => v.lang.startsWith("en")) || voices[0];
-    speechSynthesis.speak(speech);
+    try {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.rate = 0.95;
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const voice = voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha")));
+        speech.voice = voice || voices.find((v) => v.lang.startsWith("en")) || voices[0];
+      }
+      window.speechSynthesis.speak(speech);
+    } catch (e) {
+      console.warn("Speech synthesis error:", e);
+    }
   }, []);
 
   useEffect(() => {
@@ -279,7 +286,7 @@ export default function Ai_interview() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b1120] pt-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 pt-20 transition-colors duration-200">
       <div className="min-h-[calc(100vh-5rem)] p-4 sm:p-8 py-10 relative overflow-hidden">
         {/* Glow ambient spots */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -291,10 +298,10 @@ export default function Ai_interview() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
                 AI Mock <span className="gradient-text">Interview Coach</span>
               </h1>
-              <p className="text-slate-400 mt-1 text-sm">
+              <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm">
                 Real-time speech evaluation, instant AI scoring, and personalized feedback.
               </p>
             </div>
@@ -304,15 +311,15 @@ export default function Ai_interview() {
               {currentUser && (
                 <button
                   onClick={() => setShowHistoryModal(true)}
-                  className="px-3.5 py-2 rounded-xl border border-slate-700 hover:border-slate-600 bg-slate-800/80 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 transition"
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 transition shadow-sm"
                 >
-                  <FaHistory className="text-cyan-400" /> Past Sessions ({history.length})
+                  <FaHistory className="text-emerald-500 dark:text-cyan-400" /> Past Sessions ({history.length})
                 </button>
               )}
               {feedback && (
                 <button
                   onClick={printSessionReport}
-                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 transition"
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 transition shadow-sm"
                   title="Print / Export Report"
                 >
                   <FaDownload /> Export Report
@@ -337,26 +344,26 @@ export default function Ai_interview() {
           <div className="grid lg:grid-cols-5 gap-6">
             {/* Left Column: Setup & Question */}
             <div className="lg:col-span-2 space-y-6">
-              <div className="card-premium bg-slate-900/80 border-slate-700/50 p-6">
-                <TopicSelector
-                  topics={TOPICS}
-                  topic={topic}
-                  setTopic={setTopic}
-                  difficulty={difficulty}
-                  setDifficulty={setDifficulty}
-                  disabled={recording}
-                />
+              <TopicSelector
+                topics={TOPICS}
+                topic={topic}
+                setTopic={setTopic}
+                difficulty={difficulty}
+                setDifficulty={setDifficulty}
+                generateNewQuestion={fetchInterviewQuestions}
+                response={response}
+                loadingQuestion={loadingQuestion}
+                isQuestionReady={isValidQuestion(response)}
+              />
 
-                <InterviewControls
-                  recording={recording}
-                  videoMode={videoMode}
-                  timer={timer}
-                  loadingQuestion={loadingQuestion}
-                  onStartInterview={startInterview}
-                  onStopInterview={stopInterview}
-                  onNextQuestion={handleNextQuestion}
-                />
-              </div>
+              <InterviewControls
+                recording={recording}
+                videoMode={videoMode}
+                timer={timer}
+                topic={topic}
+                startInterview={startInterview}
+                stopInterview={stopInterview}
+              />
 
               {/* Live Mic Listening Waveform Indicator */}
               {recording && (
@@ -378,8 +385,8 @@ export default function Ai_interview() {
 
               {/* Overall Session Cumulative Progress */}
               {attempts > 0 && (
-                <div className="card-premium bg-slate-900/80 border-slate-700/50 p-5 text-center">
-                  <p className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-3">Session Average</p>
+                <div className="card-premium p-5 text-center">
+                  <p className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-3">Session Average</p>
                   <div className="flex justify-center">
                     <ScoreRing score={Number(percentage) / 10} max={10} size={110} label="Current Pace" />
                   </div>
@@ -398,12 +405,12 @@ export default function Ai_interview() {
               )}
 
               <AnswerAnalyzer
-                question={response}
                 answer={answer}
                 setAnswer={setAnswer}
+                analyzeAnswer={analyzeAnswer}
                 analyzing={analyzing}
-                onAnalyze={analyzeAnswer}
-                recording={recording}
+                onNextQuestion={handleNextQuestion}
+                hasFeedback={!!feedback}
               />
 
               <InterviewResults
