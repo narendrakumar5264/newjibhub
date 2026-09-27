@@ -107,6 +107,7 @@ export default function CreateListing() {
           handleSubmit={handleSubmit} isUploading={isUploading}
           uploadStatus={uploadStatus} uploadedImages={uploadedImages}
           buttonText={loading ? 'Creating...' : 'Create Job Posting'}
+          setFormData={setFormData}
         />
       </div>
     </div>

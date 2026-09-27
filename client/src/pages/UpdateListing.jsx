@@ -121,6 +121,7 @@ export default function UpdateListing() {
           handleSubmit={handleSubmit} isUploading={isUploading}
           uploadStatus={uploadStatus} uploadedImages={uploadedImages}
           buttonText={loading ? 'Updating...' : 'Update Job Posting'}
+          setFormData={setFormData}
         />
       </div>
     </div>

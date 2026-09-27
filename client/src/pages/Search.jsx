@@ -1,41 +1,48 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ListingItem from '../components/ListingItem';
 import { ThemeContext } from '../context/ThemeContext';
 import { FiFilter, FiX } from 'react-icons/fi';
 import { CiSearch } from "react-icons/ci";
+import { FaTimes, FaBriefcase, FaUndo } from 'react-icons/fa';
 
 export default function Search() {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const location = useLocation();
+
   const [sidebardata, setSidebardata] = useState({
     searchTerm: '',
     type: 'all',
     remote: false,
     onsite: false,
-    sort: 'created_at',
+    sort: 'createdAt',
     order: 'desc',
     city: ''
   });
 
+  const [searchInput, setSearchInput] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
   const [showMore, setShowMore] = useState(false);
 
+  const debounceTimerRef = useRef(null);
+
+  // Sync state from URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const updatedData = {
-      searchTerm: urlParams.get('searchTerm') || '',
+      searchTerm: urlParams.get('searchTerm') || urlParams.get('company') || '',
       city: urlParams.get('city') || '',
       type: urlParams.get('type') || 'all',
       remote: urlParams.get('remote') === 'true',
       onsite: urlParams.get('onsite') === 'true',
-      sort: urlParams.get('sort') || 'created_at',
+      sort: urlParams.get('sort') || 'createdAt',
       order: urlParams.get('order') || 'desc',
     };
-    setSidebardata((prev) => ({ ...prev, ...updatedData }));
+    setSidebardata(updatedData);
+    setSearchInput(updatedData.city || updatedData.searchTerm || '');
 
     const fetchListings = async () => {
       setLoading(true);
@@ -43,197 +50,328 @@ export default function Search() {
       try {
         const res = await fetch(`/api/listing/get?${urlParams.toString()}`);
         const data = await res.json();
-        setListings(data);
-        setShowMore(data.length > 8);
+        if (Array.isArray(data)) {
+          setListings(data);
+          setShowMore(data.length > 8);
+        } else {
+          setListings([]);
+        }
       } catch (error) {
         console.error('Error fetching listings:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchListings();
   }, [location.search]);
 
-  const handleChange = (e) => {
-    if (e.target.id === 'all' || e.target.id === 'internship' || e.target.id === 'full-time') {
-      setSidebardata({ ...sidebardata, type: e.target.id });
-    }
-    if (e.target.id === 'searchTerm' || e.target.id === 'city') {
-      setSidebardata({ ...sidebardata, [e.target.id]: e.target.value });
-    }
-    if (e.target.id === 'remote' || e.target.id === 'onsite') {
-      setSidebardata({ ...sidebardata, [e.target.id]: e.target.checked || e.target.checked === 'true' ? true : false });
-    }
-    if (e.target.id === 'sort_order') {
-      const sort = e.target.value.split('_')[0] || 'created_at';
-      const order = e.target.value.split('_')[1] || 'desc';
-      setSidebardata({ ...sidebardata, sort, order });
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Push new query to URL
+  const applyQuery = (newData) => {
     const urlParams = new URLSearchParams();
-    if (sidebardata.searchTerm) urlParams.set('searchTerm', sidebardata.searchTerm);
-    if (sidebardata.city) urlParams.set('city', sidebardata.city);
-    if (sidebardata.type) urlParams.set('type', sidebardata.type);
-    if (sidebardata.remote) urlParams.set('remote', sidebardata.remote);
-    if (sidebardata.onsite) urlParams.set('onsite', sidebardata.onsite);
-    if (sidebardata.sort) urlParams.set('sort', sidebardata.sort);
-    if (sidebardata.order) urlParams.set('order', sidebardata.order);
+    if (newData.searchTerm) urlParams.set('searchTerm', newData.searchTerm);
+    if (newData.city) urlParams.set('city', newData.city);
+    if (newData.type && newData.type !== 'all') urlParams.set('type', newData.type);
+    if (newData.remote) urlParams.set('remote', 'true');
+    if (newData.onsite) urlParams.set('onsite', 'true');
+    if (newData.sort) urlParams.set('sort', newData.sort);
+    if (newData.order) urlParams.set('order', newData.order);
     navigate(`/search?${urlParams.toString()}`);
   };
 
-  const onShowMoreClick = async () => {
-    const numberOfListings = listings.length;
-    const startIndex = numberOfListings;
-    const urlParams = new URLSearchParams(location.search);
-    urlParams.set('startIndex', startIndex);
-    const res = await fetch(`/api/listing/get?${urlParams.toString()}`);
-    const data = await res.json();
-    if (data.length < 9) setShowMore(false);
-    setListings([...listings, ...data]);
+  // Debounced search handler for live typing
+  const handleSearchInputChange = (e) => {
+    const val = e.target.value;
+    setSearchInput(val);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      const nextData = { ...sidebardata, city: val, searchTerm: val };
+      setSidebardata(nextData);
+      applyQuery(nextData);
+    }, 400);
   };
 
-  const FilterCheckbox = ({ id, label, checked }) => (
-    <label className="flex items-center gap-3 cursor-pointer group">
-      <div className="relative">
-        <input type="checkbox" id={id} className="peer sr-only" onChange={handleChange} checked={checked} />
-        <div className="w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 peer-checked:bg-emerald-600 peer-checked:border-emerald-600 transition-all duration-200 flex items-center justify-center">
-          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-      </div>
-      <span className="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{label}</span>
-    </label>
-  );
+  const handleFilterToggle = (key, value) => {
+    const nextData = { ...sidebardata, [key]: value };
+    setSidebardata(nextData);
+    applyQuery(nextData);
+  };
+
+  const removeChip = (key) => {
+    let nextData = { ...sidebardata };
+    if (key === 'type') nextData.type = 'all';
+    else if (key === 'remote') nextData.remote = false;
+    else if (key === 'onsite') nextData.onsite = false;
+    else if (key === 'city' || key === 'searchTerm') {
+      nextData.city = '';
+      nextData.searchTerm = '';
+      setSearchInput('');
+    }
+    setSidebardata(nextData);
+    applyQuery(nextData);
+  };
+
+  const clearAllFilters = () => {
+    const resetData = {
+      searchTerm: '',
+      type: 'all',
+      remote: false,
+      onsite: false,
+      sort: 'createdAt',
+      order: 'desc',
+      city: '',
+    };
+    setSidebardata(resetData);
+    setSearchInput('');
+    applyQuery(resetData);
+  };
+
+  const onShowMoreClick = async () => {
+    const startIndex = listings.length;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('startIndex', startIndex);
+    try {
+      const res = await fetch(`/api/listing/get?${urlParams.toString()}`);
+      const data = await res.json();
+      if (data.length < 9) setShowMore(false);
+      setListings([...listings, ...data]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Active filter chips list
+  const activeChips = [];
+  if (sidebardata.city) activeChips.push({ key: 'city', label: `Location: "${sidebardata.city}"` });
+  if (sidebardata.searchTerm && sidebardata.searchTerm !== sidebardata.city) {
+    activeChips.push({ key: 'searchTerm', label: `Keyword: "${sidebardata.searchTerm}"` });
+  }
+  if (sidebardata.type && sidebardata.type !== 'all') {
+    activeChips.push({ key: 'type', label: sidebardata.type === 'full-time' ? 'Full Time' : 'Internship' });
+  }
+  if (sidebardata.remote) activeChips.push({ key: 'remote', label: 'Remote Only' });
+  if (sidebardata.onsite) activeChips.push({ key: 'onsite', label: 'On-Site' });
 
   return (
-    <div className={`${theme === "dark" ? "dark" : ""} min-h-screen pt-20 bg-slate-50 dark:bg-[#0b1120]`}>
+    <div className={`${theme === "dark" ? "dark" : ""} min-h-screen pt-20 bg-slate-50 dark:bg-[#0b1120] text-slate-800 dark:text-slate-200 transition-colors duration-300`}>
       <div className="flex flex-col md:flex-row">
-        {/* Sidebar */}
+        {/* Desktop Sticky Sidebar */}
         <aside className={`
           fixed md:sticky md:top-20 inset-x-0 bottom-0 z-40 md:z-auto
-          w-full md:w-72 lg:w-80 md:min-h-[calc(100vh-5rem)]
-          bg-white dark:bg-slate-900 md:bg-white/80 md:dark:bg-slate-900/80 md:backdrop-blur-xl
+          w-full md:w-72 lg:w-80 md:h-[calc(100vh-5rem)]
+          bg-white dark:bg-slate-900 md:bg-white/90 md:dark:bg-slate-900/90 md:backdrop-blur-xl
           border-t md:border-t-0 md:border-r border-slate-200 dark:border-slate-800
-          transition-transform duration-300 ease-in-out
+          transition-transform duration-300 ease-in-out md:overflow-y-auto
           ${showFilters ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
         `}>
-          <div className="p-6 overflow-y-auto max-h-[70vh] md:max-h-none">
-            <div className="flex items-center justify-between mb-6 md:mb-8">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h2>
-              <button onClick={() => setShowFilters(false)} className="md:hidden p-1 text-slate-400 hover:text-slate-600"><FiX size={20} /></button>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Filter Vacancies
+              </h2>
+              {activeChips.length > 0 && (
+                <button onClick={clearAllFilters} className="text-xs text-rose-500 hover:underline font-semibold flex items-center gap-1">
+                  <FaUndo className="text-[10px]" /> Reset
+                </button>
+              )}
+              <button onClick={() => setShowFilters(false)} className="md:hidden p-1 text-slate-400">
+                <FiX size={20} />
+              </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Job Type */}
+            <div className="space-y-6 text-xs">
+              {/* Job Type Radio/Checkboxes */}
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Job Type</h3>
-                <div className="space-y-2.5">
-                  <FilterCheckbox id="all" label="All Types" checked={sidebardata.type === "all"} />
-                  <FilterCheckbox id="internship" label="Internship" checked={sidebardata.type === "internship"} />
-                  <FilterCheckbox id="full-time" label="Full Time" checked={sidebardata.type === "full-time"} />
+                <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-[11px]">Contract Type</h3>
+                <div className="space-y-2">
+                  {[
+                    { id: 'all', label: 'All Openings' },
+                    { id: 'full-time', label: 'Full-Time Positions' },
+                    { id: 'internship', label: 'Internships' },
+                  ].map((t) => (
+                    <label key={t.id} className="flex items-center gap-2.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="jobTypeRadio"
+                        checked={sidebardata.type === t.id}
+                        onChange={() => handleFilterToggle('type', t.id)}
+                        className="text-emerald-500 focus:ring-emerald-400"
+                      />
+                      <span className="font-medium text-slate-700 dark:text-slate-300">{t.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
               {/* Work Mode */}
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Work Mode</h3>
-                <div className="space-y-2.5">
-                  <FilterCheckbox id="remote" label="Remote" checked={sidebardata.remote} />
-                  <FilterCheckbox id="onsite" label="On-Site" checked={sidebardata.onsite} />
+                <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-[11px]">Workplace Setup</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sidebardata.remote}
+                      onChange={(e) => handleFilterToggle('remote', e.target.checked)}
+                      className="rounded text-emerald-500 focus:ring-emerald-400"
+                    />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Remote Only</span>
+                  </label>
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sidebardata.onsite}
+                      onChange={(e) => handleFilterToggle('onsite', e.target.checked)}
+                      className="rounded text-emerald-500 focus:ring-emerald-400"
+                    />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">On-Site / Hybrid</span>
+                  </label>
                 </div>
               </div>
 
-              {/* Sort By */}
+              {/* Sort Order */}
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Sort By</h3>
+                <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-2.5 text-[11px]">Sort By</h3>
                 <select
-                  onChange={handleChange}
-                  defaultValue="createdAt_desc"
-                  id="sort_order"
-                  className="input-premium text-sm"
+                  value={`${sidebardata.sort}_${sidebardata.order}`}
+                  onChange={(e) => {
+                    const [sort, order] = e.target.value.split('_');
+                    const nextData = { ...sidebardata, sort, order };
+                    setSidebardata(nextData);
+                    applyQuery(nextData);
+                  }}
+                  className="input-premium py-2 text-xs"
                 >
-                  <option value="createdAt_desc">Latest First</option>
+                  <option value="createdAt_desc">Latest First (Newest)</option>
                   <option value="createdAt_asc">Oldest First</option>
-                  <option value="salary_desc">Highest Salary</option>
-                  <option value="salary_asc">Lowest Salary</option>
+                  <option value="salary_desc">Highest Compensation</option>
+                  <option value="salary_asc">Lowest Compensation</option>
                 </select>
               </div>
-
-              <button
-                onClick={handleSubmit}
-                className="btn-gradient w-full py-3 rounded-xl text-sm uppercase tracking-wider"
-              >
-                Apply Filters
-              </button>
             </div>
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main Search Results View */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
-          {/* Search Bar */}
-          <div className="flex items-center gap-3 mb-8">
-            <form onSubmit={handleSubmit} className="flex-1 max-w-lg relative">
+          {/* Top Search Bar & Mobile Filter Trigger */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 max-w-xl relative">
               <CiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <input
                 type="text"
-                id="city"
-                placeholder="Search by city, company, role..."
-                className="input-premium pl-12 pr-4"
-                value={sidebardata.city}
-                onChange={handleChange}
+                placeholder="Search job title, skills, company, or city..."
+                className="input-premium pl-12 pr-4 text-xs py-3"
+                value={searchInput}
+                onChange={handleSearchInputChange}
               />
-            </form>
+              {searchInput && (
+                <button
+                  onClick={() => removeChip('city')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                >
+                  <FaTimes className="text-xs" />
+                </button>
+              )}
+            </div>
+
             <button
-              className="md:hidden flex items-center gap-2 btn-gradient py-3 px-4 rounded-xl text-sm"
               onClick={() => setShowFilters(!showFilters)}
+              className="md:hidden btn-gradient py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2"
             >
-              <FiFilter className="w-4 h-4" />
-              <span>Filters</span>
+              <FiFilter /> Filters
             </button>
           </div>
 
+          {/* Active Filter Chips */}
+          {activeChips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <span className="text-[11px] text-slate-400 uppercase font-bold mr-1">Active:</span>
+              {activeChips.map((chip) => (
+                <span
+                  key={chip.key}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800"
+                >
+                  {chip.label}
+                  <button onClick={() => removeChip(chip.key)} className="hover:opacity-75">
+                    <FaTimes className="text-[10px]" />
+                  </button>
+                </span>
+              ))}
+              <button onClick={clearAllFilters} className="text-xs text-slate-400 hover:text-rose-400 ml-1">
+                Clear all
+              </button>
+            </div>
+          )}
+
           {/* Results Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-              {sidebardata.city ? (
-                <>Jobs in <span className="gradient-text">{sidebardata.city}</span></>
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+              {sidebardata.city || sidebardata.searchTerm ? (
+                <>Jobs matching <span className="gradient-text">"{sidebardata.city || sidebardata.searchTerm}"</span></>
               ) : (
-                'All Jobs'
+                'All Available Opportunities'
               )}
             </h1>
-            {!loading && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{listings.length} result{listings.length !== 1 ? 's' : ''} found</p>}
+            {!loading && (
+              <span className="text-xs text-slate-500 font-medium">
+                {listings.length} vacancy{listings.length !== 1 ? 'ies' : ''} found
+              </span>
+            )}
           </div>
+
+          {/* Skeletons Loader when Loading */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="card-premium p-5 space-y-4 animate-pulse">
+                  <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+                  <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-xl mt-4" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && listings.length === 0 && (
+            <div className="card-premium p-12 text-center max-w-lg mx-auto my-12 space-y-4">
+              <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto text-2xl">
+                <FaBriefcase />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">No jobs match your search</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                {activeChips.length > 0
+                  ? "Try relaxing specific filters (e.g. removing 'Remote Only' or clearing location keywords)."
+                  : "We currently do not have vacancies matching this search query."}
+              </p>
+              {activeChips.length > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="btn-gradient py-2 px-5 rounded-xl text-xs uppercase tracking-wider font-semibold"
+                >
+                  Reset All Filters
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            {!loading && listings.length === 0 && (
-              <div className="col-span-full text-center py-20">
-                <div className="text-6xl mb-4">🔍</div>
-                <p className="text-xl font-medium text-slate-400">No jobs found</p>
-                <p className="text-sm text-slate-400 mt-1">Try adjusting your filters</p>
-              </div>
-            )}
-            {loading && (
-              <div className="col-span-full flex justify-center py-20">
-                <div className="w-10 h-10 border-3 border-slate-200 dark:border-slate-700 border-t-emerald-500 rounded-full animate-spin" />
-              </div>
-            )}
-            {!loading && listings && listings.map((listing) => (
-              <ListingItem key={listing._id} listing={listing} />
-            ))}
-          </div>
+          {!loading && listings.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {listings.map((listing) => (
+                <ListingItem key={listing._id} listing={listing} />
+              ))}
+            </div>
+          )}
 
-          {showMore && (
-            <div className="text-center mt-8">
+          {/* Show More Pagination */}
+          {showMore && !loading && (
+            <div className="text-center mt-10">
               <button
                 onClick={onShowMoreClick}
-                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-semibold text-sm transition-colors"
+                className="btn-gradient py-2.5 px-6 rounded-xl text-xs uppercase tracking-wider font-semibold"
               >
-                Show more results →
+                Load More Openings →
               </button>
             </div>
           )}

@@ -18,7 +18,9 @@ import Ai_interview from './pages/AiInterview';
 import Recuirtment from './pages/Recuirtment';
 import Resume from './pages/Resume';
 
-const noFooterPages = ['/', '/sign-in', '/sign-up'];
+import ResetPassword from './pages/ResetPassword';
+
+const noFooterPages = ['/', '/sign-in', '/sign-up', '/reset-password'];
 
 function AppContent() {
   const location = useLocation();
@@ -34,6 +36,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
           <Route path='/search' element={<Search />} />

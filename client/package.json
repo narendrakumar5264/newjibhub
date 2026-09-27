@@ -17,6 +17,7 @@
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.4.10",
     "gsap": "^3.12.7",
+    "mern-estate": "file:..",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.0.375",
     "react": "^18.2.0",
